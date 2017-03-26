@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <TextView
+        android:id="@+id/textViewTotalRefuelVolume"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="8dp"
+        android:text="@string/total_refuel_volume"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewStatics" />
+
+    <TextView
+        android:id="@+id/textViewVolume92"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="9dp"
+        android:layout_marginTop="0dp"
+        android:text="@string/oil_92"
+        app:layout_constraintLeft_toRightOf="@+id/textViewTotalRefuelVolume"
+        app:layout_constraintTop_toTopOf="@+id/textViewTotalRefuelVolume" />
+
+    <TextView
+        android:id="@+id/textViewVolume95"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="0dp"
+        android:layout_marginTop="8dp"
+        android:text="@string/oil_95"
+        app:layout_constraintLeft_toLeftOf="@+id/textViewVolume92"
+        app:layout_constraintTop_toBottomOf="@+id/textViewVolume92" />
+
+    <TextView
+        android:id="@+id/textViewVolume98"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="0dp"
+        android:layout_marginTop="8dp"
+        android:text="@string/oil_98"
+        app:layout_constraintLeft_toLeftOf="@+id/textViewVolume95"
+        app:layout_constraintTop_toBottomOf="@+id/textViewVolume95" />
+
+    <TextView
+        android:id="@+id/textViewVolumeDiesel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="0dp"
+        android:layout_marginTop="8dp"
+        android:text="@string/diesel"
+        app:layout_constraintLeft_toLeftOf="@+id/textViewVolume98"
+        app:layout_constraintTop_toBottomOf="@+id/textViewVolume98" />
+
+    <TextView
+        android:id="@+id/textViewFuelConsumption"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="8dp"
+        android:text="@string/refuel_consumption_by_oil_type"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewVolumeDiesel" />
+
+    <TextView
+        android:id="@+id/textViewCarConsumption92"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="0dp"
+        android:layout_marginTop="8dp"
+        android:text="@string/oil_92"
+        app:layout_constraintLeft_toLeftOf="@+id/textViewVolumeDiesel"
+        app:layout_constraintTop_toBottomOf="@+id/textViewFuelConsumption" />
+
+    <TextView
+        android:id="@+id/textViewCarConsumption95"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="0dp"
+        android:layout_marginTop="8dp"
+        android:text="@string/oil_95"
+        app:layout_constraintLeft_toLeftOf="@+id/textViewCarConsumption92"
+        app:layout_constraintTop_toBottomOf="@+id/textViewCarConsumption92" />
+
+    <TextView
+        android:id="@+id/textViewCarConsumption98"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="0dp"
+        android:layout_marginTop="8dp"
+        android:text="@string/oil_98"
+        app:layout_constraintLeft_toLeftOf="@+id/textViewCarConsumption92"
+        app:layout_constraintTop_toBottomOf="@+id/textViewCarConsumption95" />
+
+    <TextView
+        android:id="@+id/textViewCarConsumptionDiesel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="0dp"
+        android:layout_marginTop="8dp"
+        android:text="@string/diesel"
+        app:layout_constraintLeft_toLeftOf="@+id/textViewCarConsumption92"
+        app:layout_constraintTop_toBottomOf="@+id/textViewCarConsumption98" />
+
+    <TextView
+        android:id="@+id/textViewStatics"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="16dp"
+        android:text="@string/statics_title"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textViewCar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/car"
+        app:layout_constraintRight_toLeftOf="@+id/textViewCarConsumption92"
+        android:layout_marginRight="8dp"
+        android:layout_marginLeft="8dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintHorizontal_bias="0.803"
+        android:layout_marginTop="8dp"
+        app:layout_constraintTop_toBottomOf="@+id/textViewFuelConsumption" />
+
+    <TextView
+        android:id="@+id/textViewScooter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="0dp"
+        android:text="@string/scooter"
+        app:layout_constraintLeft_toLeftOf="@+id/textViewCar"
+        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toBottomOf="@+id/textViewCarConsumptionDiesel" />
+
+    <TextView
+        android:id="@+id/textViewScooterConsumption92"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/oil_92"
+        android:layout_marginLeft="0dp"
+        app:layout_constraintLeft_toLeftOf="@+id/textViewCarConsumptionDiesel"
+        app:layout_constraintTop_toTopOf="@+id/textViewScooter"
+        android:layout_marginTop="0dp" />
+
+    <TextView
+        android:id="@+id/textViewScooterConsumption95"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="0dp"
+        android:layout_marginTop="8dp"
+        android:text="@string/oil_95"
+        app:layout_constraintLeft_toLeftOf="@+id/textViewScooterConsumption92"
+        app:layout_constraintTop_toBottomOf="@+id/textViewScooterConsumption92" />
+
+    <TextView
+        android:id="@+id/textViewScooterConsumption98"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="0dp"
+        android:layout_marginTop="8dp"
+        android:text="@string/oil_98"
+        app:layout_constraintLeft_toLeftOf="@+id/textViewScooterConsumption95"
+        app:layout_constraintTop_toBottomOf="@+id/textViewScooterConsumption95" />
+
+    <TextView
+        android:id="@+id/textViewScooterConsumptionDiesel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="0dp"
+        android:layout_marginTop="8dp"
+        android:text="@string/diesel"
+        app:layout_constraintLeft_toLeftOf="@+id/textViewScooterConsumption98"
+        app:layout_constraintTop_toBottomOf="@+id/textViewScooterConsumption98" />
+</android.support.constraint.ConstraintLayout>

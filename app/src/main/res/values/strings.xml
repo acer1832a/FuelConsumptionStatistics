@@ -1,0 +1,63 @@
+<resources>
+    <string name="app_name">FuelConsumptionStatistics</string>
+    <string name="action_settings">設定</string>
+    <string name="section_format">Hello World from section: %1$d</string>
+    <string name="database">資料庫內容</string>
+    <string name="vehicle_name">車輛名稱</string>
+    <string name="vehicle_type">車輛類型</string>
+    <string name="last_refuel_date">最近一次加油時間</string>
+    <string name="current_fuel_consumption">目前平均油耗</string>
+    <string name="vehicle_management">車輛管理</string>
+    <string name="refuel_history">加油記錄</string>
+    <string name="fuel_consumption_state">油耗統計</string>
+    <string name="add_refuel_data">新增加油紀錄</string>
+    <string name="add_vehicle">新增車輛</string>
+    <string name="u_choose">剛剛選擇了</string>
+    <string name="air_capacity">排氣量(單位:cc)</string>
+    <string name="current_mileage">目前里程數</string>
+    <string name="refuel_mileage">加油時里程數</string>
+    <string-array name="vehicle_type_array">
+        <item>機車</item>
+        <item>汽車</item>
+    </string-array>
+    <string name="car">汽車</string>
+    <string name="scooter">機車</string>
+    <string name="OK">確定</string>
+    <string name="Cancel">取消</string>
+    <string name="check_Title">確認視窗</string>
+    <string name="check_Message">剛剛所新增的資料尚未存檔，你確定要取消?</string>
+    <string name="leave_Check">確定要關閉此程式?</string>
+    <string name="current_Price">目前油價</string>
+    <string name="custom_Price">自訂油價</string>
+    <string name="auto_get">自動取得</string>
+    <string name="custom_time">自訂時間</string>
+    <string name="current_time">目前時間</string>
+    <string name="CPC">中油</string>
+    <string name="FPCC">台塑</string>
+    <string name="oil_92">92無鉛汽油</string>
+    <string name="oil_95">95無鉛汽油</string>
+    <string name="oil_98">98無鉛汽油</string>
+    <string name="diesel">超級柴油</string>
+    <string name="refuel_Volume">加油量(單位公升)</string>
+    <string name="liter">公升</string>
+    <string name="refuel_Date_Time">加油日期及時間</string>
+    <string name="refuel_Vehicle">加油車輛</string>
+    <string name="oil_Select">選擇油品</string>
+    <string name="total_Price">總金額</string>
+    <string name="refuel_Explanation">加油量與總金額擇一輸入即可，程式會自動計算出相對應的數字。</string>
+    <string name="set_Time">設定時間</string>
+    <string name="error_message_vehicle_name">請輸入車輛名稱</string>
+    <string name="error_message_air_capacity">請輸入排氣量</string>
+    <string name="error_message_origin_mileage">請輸入車輛目前的公里數</string>
+    <string name="no_vehicle_data_title">無車輛資料</string>
+    <string name="no_vehicle_data_content">手機資料庫查無車輛資料，請先新增車輛資料!</string>
+    <string name="add_refuel_data_title">新增加油資料</string>
+    <string name="add_vehicle_title">新增車輛資料</string>
+    <string name="error_check_title">錯誤確認</string>
+    <string name="refuel_mileage_error">加油里程數小於該車輛最後一次的加油里程紀錄，請確認里程數及選擇的車輛是否正確!</string>
+    <string name="welcome_message">歡迎使用Fuel Consumption Statics，請先新增一筆車輛資料。</string>
+    <string name="statics_title">截至目前為止的統計資料如下：</string>
+    <string name="total_refuel_volume">總加油量：</string>
+    <string name="refuel_consumption_by_oil_type">各油品之油耗統計：</string>
+    <string name="kilometers_per_liter">公里/每公升</string>
+</resources>
