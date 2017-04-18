@@ -99,10 +99,58 @@ class RefuelDBHelper extends SQLiteOpenHelper {
         RefuelData refuelData = new RefuelData();
         if (cursor.moveToFirst()) {
             getRefuelDataFromDatabase(refuelData,cursor);
-            cursor.close();
         }
+        cursor.close();
         return refuelData;
     }
+
+    public RefuelData getRefuelDataByPosition(int position){
+        RefuelData refuelData = new RefuelData();
+        SQLiteDatabase db = this.getReadableDatabase();
+        String queryString = "SELECT * FROM " + TABLE_REFUEL_DATA + " ORDER BY "
+                + KEY_ID + " DESC";
+        Cursor cursor = db.rawQuery(queryString,null);
+        if(cursor.moveToFirst()){
+            cursor.moveToPosition(position);
+            getRefuelDataFromDatabase(refuelData,cursor);
+        }
+        cursor.close();
+        return refuelData;
+    }
+
+    public int getVehicleMinRefuelMileage(long vehicleID){
+        int minMileage = 0;
+        SQLiteDatabase database = this.getReadableDatabase();
+        String queryString = "SELECT " + KEY_ID + "," + KEY_VEHICLE_ID + "," + KEY_REFUEL_MILEAGE
+                + " FROM " + TABLE_REFUEL_DATA + " WHERE " + KEY_VEHICLE_ID + " = "
+                + String.valueOf(vehicleID) + " ORDER BY " + KEY_REFUEL_MILEAGE;
+        Cursor cursor = database.rawQuery(queryString,null);
+        if(cursor.moveToFirst()){
+            Log.d("result",String.valueOf(cursor.getCount()));
+            minMileage = cursor.getInt(cursor.getColumnIndex(KEY_REFUEL_MILEAGE));
+            Log.d("minMileage",String.valueOf(minMileage));
+            Log.d("dataID",cursor.getString(cursor.getColumnIndex(KEY_ID)));
+        }
+        cursor.close();
+        return minMileage;
+    }
+
+    public int getVehicleLastRefuelMileage(long vehicleID){
+        int maxMileage = 0;
+        SQLiteDatabase database = this.getReadableDatabase();
+        String queryString = "SELECT " + KEY_VEHICLE_ID + "," + KEY_REFUEL_MILEAGE
+                + " FROM " + TABLE_REFUEL_DATA + " WHERE " + KEY_VEHICLE_ID + " = "
+                + String.valueOf(vehicleID) + " ORDER BY " + KEY_REFUEL_MILEAGE;
+        Cursor cursor = database.rawQuery(queryString,null);
+        if(cursor.moveToLast()){
+            if(cursor.moveToPrevious()){
+                maxMileage = cursor.getInt(cursor.getColumnIndex(KEY_REFUEL_MILEAGE));
+            }
+        }
+        cursor.close();
+        return maxMileage;
+    }
+
     public ArrayList<RefuelData> getRefuelDataArrayList(){
         ArrayList<RefuelData> refuelDataArrayList = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
@@ -115,9 +163,8 @@ class RefuelDBHelper extends SQLiteOpenHelper {
                 getRefuelDataFromDatabase(refuelData,cursor);
                 refuelDataArrayList.add(refuelData);
             }while(cursor.moveToNext());
-            cursor.close();
         }
-
+        cursor.close();
         return refuelDataArrayList;
     }
     private void getRefuelDataFromDatabase(RefuelData refuelData, Cursor cursor){
@@ -139,8 +186,8 @@ class RefuelDBHelper extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery(queryString,null);
         if (cursor.moveToFirst()){
             getVehicleFromDatabase(vehicle, cursor);
-            cursor.close();
         }
+        cursor.close();
         return vehicle;
     }
 
@@ -169,9 +216,9 @@ class RefuelDBHelper extends SQLiteOpenHelper {
         if(cursor.moveToFirst()){
             cursor.moveToPosition(position);
             getVehicleFromDatabase(result,cursor);
-            cursor.close();
             Log.d("vehicle id is",String.valueOf(result.getVehicleID()));
         }
+        cursor.close();
         return result;
     }
 
@@ -187,8 +234,8 @@ class RefuelDBHelper extends SQLiteOpenHelper {
                 nameStrings[arrayIndex] = cursor.getString(cursor.getColumnIndex(KEY_VEHICLE_NAME));
                 arrayIndex++;
             }while(cursor.moveToNext());
-            cursor.close();
         }
+        cursor.close();
         return nameStrings;
     }
 
@@ -270,14 +317,13 @@ class RefuelDBHelper extends SQLiteOpenHelper {
 
     public void deleteRefuelData(long dataID){
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(TABLE_REFUEL_DATA, KEY_ID + " = ?",
-                new String[]{String.valueOf(dataID)});
+        db.delete(TABLE_REFUEL_DATA, KEY_ID + " = " + String.valueOf(dataID),null);
     }
 
-    public void deleteVehicle(String vehicleName){
+    public void deleteVehicle(long vehicleID){
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(TABLE_VEHICLE, KEY_VEHICLE_NAME + " = ?",
-                new String[]{vehicleName});
+        db.delete(TABLE_VEHICLE, KEY_ID + " = " + String.valueOf(vehicleID),null);
+        db.delete(TABLE_REFUEL_DATA, KEY_VEHICLE_ID + " = " + String.valueOf(vehicleID),null);
     }
 
     public HashMap<String,Double> getTotalVolumeStatics(){
@@ -292,8 +338,8 @@ class RefuelDBHelper extends SQLiteOpenHelper {
             do {
                 hashMap.put(cursor.getString(cursor.getColumnIndex(KEY_OIL_TYPE)),cursor.getDouble(cursor.getColumnIndex(KEY_REFUEL_VOLUME)));
             }while (cursor.moveToNext());
-            cursor.close();
         }
+        cursor.close();
         return hashMap;
     }
     public HashMap<String,Double> getVehicleFuelConsumption(String vehicleType){
@@ -371,13 +417,12 @@ class RefuelDBHelper extends SQLiteOpenHelper {
                     break;
             }
             }while (cursor.moveToNext());
-            cursor.close();
         }
         hashMap.put(oil92, getFuelConsumption(volume[0],originMileage[0],lastMileage[0]));
         hashMap.put(oil95, getFuelConsumption(volume[1],originMileage[1],lastMileage[1]));
         hashMap.put(oil98, getFuelConsumption(volume[2],originMileage[2],lastMileage[2]));
         hashMap.put(diesel, getFuelConsumption(volume[3],originMileage[3],lastMileage[3]));
-
+        cursor.close();
         return hashMap;
     }
     private double getFuelConsumption(double volume, int originMileage, int lastMileage){

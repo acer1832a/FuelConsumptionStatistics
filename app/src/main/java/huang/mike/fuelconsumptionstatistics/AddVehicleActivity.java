@@ -1,6 +1,7 @@
 package huang.mike.fuelconsumptionstatistics;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -9,9 +10,11 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 public class AddVehicleActivity extends AppCompatActivity {
     private RefuelDBHelper dbHelper;
+    private Vehicle vehicle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,6 +32,16 @@ public class AddVehicleActivity extends AppCompatActivity {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         //为spinner設置适配器
         spinner.setAdapter(adapter);
+
+        Intent intent = getIntent();
+        int position = intent.getIntExtra("position",-1);
+        if(position >= 0){
+            vehicle = dbHelper.getVehicleByPosition(position);
+            this.setTitle(R.string.modify_vehicle);
+            TextView textView = (TextView)findViewById(R.id.textCurrentMileage);
+            textView.setText(R.string.origin_mileage);
+            initialVehicleData();
+        }
     }
 
     @Override
@@ -43,6 +56,22 @@ public class AddVehicleActivity extends AppCompatActivity {
         }
 
         return super.onKeyDown(keyCode, event);
+    }
+
+    private void initialVehicleData(){
+            EditText editText = (EditText)findViewById(R.id.editVehicleName);
+            editText.setText(vehicle.getVehicleName());
+            editText = (EditText) findViewById(R.id.editAirCapacity);
+            editText.setText(String.valueOf(vehicle.getAirCapacity()));
+            editText = (EditText) findViewById(R.id.editCurrentMileage);
+            editText.setText(String.valueOf(vehicle.getOriginMileage()));
+            Spinner spinner = (Spinner) findViewById(R.id.vehicleTypeSpanner);
+            ArrayAdapter adapter = (ArrayAdapter) spinner.getAdapter();
+            for(int position = 0;position < adapter.getCount();position++){
+                if(spinner.getItemAtPosition(position).toString().equals(vehicle.getVehicleType())){
+                    spinner.setSelection(position);
+                }
+            }
     }
 
     private void checkDialog(){
@@ -71,20 +100,44 @@ public class AddVehicleActivity extends AppCompatActivity {
 
     public void clickOK(View view){
         if(checkEditTextHasData()) {
-            Vehicle vehicle = new Vehicle();
-            EditText editText = (EditText)findViewById(R.id.editVehicleName);
-            vehicle.setVehicleName(editText.getText().toString());
-            editText = (EditText) findViewById(R.id.editAirCapacity);
-            vehicle.setAirCapacity(Integer.parseInt(editText.getText().toString()));
-            editText = (EditText) findViewById(R.id.editCurrentMileage);
-            vehicle.setOriginMileage(Integer.parseInt(editText.getText().toString()));
-            Spinner spinner = (Spinner) findViewById(R.id.vehicleTypeSpanner);
-            vehicle.setVehicleType(spinner.getSelectedItem().toString());
-            dbHelper.addVehicle(vehicle);
-            setResult(RESULT_OK);
-            dbHelper.close();
-            finish();
+            if(vehicle == null){
+                vehicle = new Vehicle();
+                convertInputToVehicle();
+                dbHelper.addVehicle(vehicle);
+                setResult(RESULT_OK);
+                dbHelper.close();
+                finish();
+            }else{
+                convertInputToVehicle();
+                if(vehicle.getOriginMileage() > dbHelper.getVehicleMinRefuelMileage(vehicle.getVehicleID())){
+                    new AlertDialog.Builder(this).setTitle(R.string.error_check_title)
+                            .setMessage(getString(R.string.origin_mileage_error,
+                                    dbHelper.getVehicleMinRefuelMileage(vehicle.getVehicleID())))
+                            .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    dialogInterface.dismiss();
+                                }
+                            }).show();
+                }else{
+                    dbHelper.updateVehicle(vehicle);
+                    setResult(RESULT_OK);
+                    dbHelper.close();
+                    finish();
+                }
+            }
         }
+    }
+
+    private void convertInputToVehicle() {
+        EditText editText = (EditText)findViewById(R.id.editVehicleName);
+        vehicle.setVehicleName(editText.getText().toString());
+        editText = (EditText) findViewById(R.id.editAirCapacity);
+        vehicle.setAirCapacity(Integer.parseInt(editText.getText().toString()));
+        editText = (EditText) findViewById(R.id.editCurrentMileage);
+        vehicle.setOriginMileage(Integer.parseInt(editText.getText().toString()));
+        Spinner spinner = (Spinner) findViewById(R.id.vehicleTypeSpanner);
+        vehicle.setVehicleType(spinner.getSelectedItem().toString());
     }
 
     private boolean isEmpty(EditText editText){

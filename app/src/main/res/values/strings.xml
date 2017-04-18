@@ -54,10 +54,24 @@
     <string name="add_refuel_data_title">新增加油資料</string>
     <string name="add_vehicle_title">新增車輛資料</string>
     <string name="error_check_title">錯誤確認</string>
-    <string name="refuel_mileage_error">加油里程數小於該車輛最後一次的加油里程紀錄，請確認里程數及選擇的車輛是否正確!</string>
+    <string name="refuel_mileage_error">加油里程數小於該車輛最後一次的加油里程紀錄(%d KM)，請確認里程數及選擇的車輛是否正確!</string>
+    <string name="refuel_mileage_edit_error">加油里程數小於該車輛的原始里程紀錄(%d KM)，請確認里程數及選擇的車輛是否正確!</string>
     <string name="welcome_message">歡迎使用Fuel Consumption Statics，請先新增一筆車輛資料。</string>
     <string name="statics_title">截至目前為止的統計資料如下：</string>
     <string name="total_refuel_volume">總加油量：</string>
     <string name="refuel_consumption_by_oil_type">各油品之油耗統計：</string>
     <string name="kilometers_per_liter">公里/每公升</string>
+    <string name="about">關於</string>
+    <string name="edit_title">編輯選項</string>
+    <string name="modify">修改</string>
+    <string name="delete">刪除</string>
+    <string name="delete_confirm">確定刪除</string>
+    <string name="delete_vehicle_confirm_message">刪除 %s 車輛資料時，相關的加油資訊也會一併刪除!</string>
+    <string name="delete_refuel_confirm_message">確定刪除 %s 的這筆加油資料!</string>
+    <string name="modify_vehicle">編輯車輛資料</string>
+    <string name="modify_refuel_data">編輯加油資訊</string>
+    <string name="origin_mileage_error">該車輛的原始里程數大於加油資訊中的最低里程數 %d，請確定原始里程數是否正確!</string>
+    <string name="origin_mileage">原始里程數</string>
+    <string name="about_title">關於此app</string>
+    <string name="about_message">版本：%s\n開發軟體：Android Studio 2.3</string>
 </resources>

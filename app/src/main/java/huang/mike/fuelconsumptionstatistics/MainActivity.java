@@ -2,6 +2,8 @@ package huang.mike.fuelconsumptionstatistics;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
@@ -12,13 +14,13 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -30,6 +32,8 @@ import java.util.HashMap;
 public class MainActivity extends AppCompatActivity {
     private static final int ADD_REFUEL_DATA_REQUEST = 0;
     private static final int ADD_VEHICLE_DATA_REQUEST = 1;
+    private static final int MODIFY_REFUEL_DATA_REQUEST = 2;
+    private static final int MODIFY_VEHICLE_DATA_REQUEST = 3;
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -100,10 +104,29 @@ public class MainActivity extends AppCompatActivity {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
+        //右上選單功能，使用item.getItemId()取得所點選的項目
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            return true;
+        }else if(id == R.id.about){
+            String version = "";
+            try {
+                PackageInfo info = getPackageManager().getPackageInfo(getPackageName(),0);
+                version = info.versionName;
+            } catch (PackageManager.NameNotFoundException e) {
+                e.printStackTrace();
+            }
+            new AlertDialog.Builder(MainActivity.this)
+                    .setTitle(getString(R.string.about_title))
+                    .setMessage(getString(R.string.about_message,version))
+                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            dialogInterface.dismiss();
+                        }
+                    }).show();
             return true;
         }
 
@@ -158,19 +181,11 @@ public class MainActivity extends AppCompatActivity {
                                 dialog.dismiss();
                             }else{
                                 Intent intent = new Intent(getApplicationContext(),AddRefuelDataActivity.class);
-                                //Bundle bundle = new Bundle();
-                                //bundle.putString("mode","add");
-                                //bundle.putString("result",null);
-                                //intent.putExtras(bundle);
                                 startActivityForResult(intent,ADD_REFUEL_DATA_REQUEST);
                             }
                         }
                         if(choose == 1){
                             Intent intent = new Intent(getApplicationContext(),AddVehicleActivity.class);
-                            //Bundle bundle = new Bundle();
-                            //bundle.putString("mode","add");
-                            //bundle.putString("result",null);
-                            //intent.putExtras(bundle);
                             startActivityForResult(intent,ADD_VEHICLE_DATA_REQUEST);
                         }
                     }
@@ -240,6 +255,12 @@ public class MainActivity extends AppCompatActivity {
                     case 2:
                         refuelDataArrayList = dbHelper.getRefuelDataArrayList();
                         ListView listViewRefuelData = (ListView) rootView2.findViewById(R.id.refuel_data_list);
+                        listViewRefuelData.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                            @Override
+                            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+                                refuelDataListClickDialog(position);
+                            }
+                        });
                         refuelArrayAdapter = new ArrayAdapter<RefuelData>(getContext(),
                                 android.R.layout.simple_list_item_2,
                                 android.R.id.text1,
@@ -261,6 +282,12 @@ public class MainActivity extends AppCompatActivity {
                     case 3:
                         vehicleArrayList = dbHelper.getVehicleArrayList();
                         ListView listViewVehicle = (ListView) rootView3.findViewById(R.id.vehicle_list);
+                        listViewVehicle.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                            @Override
+                            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+                                vehicleListClickDialog(position);
+                            }
+                        });
                         vehicleArrayAdapter = new ArrayAdapter<Vehicle>(getContext(),
                                 android.R.layout.simple_list_item_2,
                                 android.R.id.text1,
@@ -285,10 +312,11 @@ public class MainActivity extends AppCompatActivity {
         }
         @Override
         public void onActivityResult(int requestCode,int resultCode,Intent intent){
-            Log.d("fragment","onActivityResult");
             super.onActivityResult(requestCode,resultCode,intent);
             switch (requestCode){
                 case ADD_REFUEL_DATA_REQUEST:
+                case MODIFY_REFUEL_DATA_REQUEST:
+                case MODIFY_VEHICLE_DATA_REQUEST:
                     updateRefuelListView();
                     updateVehicleListView();
                     break;
@@ -298,6 +326,100 @@ public class MainActivity extends AppCompatActivity {
                 default:
                     break;
             }
+        }
+
+        private void refuelDataListClickDialog(final int position){
+            String[] array = {getString(R.string.modify),getString(R.string.delete)};
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setTitle(R.string.edit_title);
+            builder.setItems(array, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int choose) {
+                    if(choose == 0){
+                        Intent intent = new Intent(getActivity(),AddRefuelDataActivity.class);
+                        intent.putExtra("position",position);
+                        startActivityForResult(intent,MODIFY_REFUEL_DATA_REQUEST);
+                    }else if(choose == 1){
+                        deleteRefuelDataConfirmDialog(position);
+                        dialogInterface.dismiss();
+                    }
+                }
+            }).setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    dialogInterface.cancel();
+                }
+            }).show();
+        }
+
+        private void deleteRefuelDataConfirmDialog(int position){
+            final RefuelData refuelData = dbHelper.getRefuelDataByPosition(position);
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setTitle(R.string.delete_confirm)
+                    .setMessage(getString(R.string.delete_refuel_confirm_message,refuelData.getDateOfRefuel()))
+                    .setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            dbHelper.deleteRefuelData(refuelData.getDataId());
+                            Vehicle vehicle = dbHelper.getVehicleByID(refuelData.getVehicleID());
+                            if(vehicle.getCurrentMileage() == refuelData.getRefuelMileage()){
+                                vehicle.setCurrentMileage(vehicle.getLastTimeRefuelMileage());
+                                vehicle.setLastTimeRefuelMileage(dbHelper.getVehicleLastRefuelMileage(vehicle.getVehicleID()));
+                            }
+                            double totalRefuelVolume = vehicle.getTotalRefuelVolume() - refuelData.getRefuelVolume();
+                            vehicle.setTotalRefuelVolume(totalRefuelVolume);
+                            dbHelper.updateVehicle(vehicle);
+                            updateRefuelListView();
+                            updateVehicleListView();
+                        }
+                    }).setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                        }
+                    }).show();
+        }
+
+        private void vehicleListClickDialog(final int position){
+            String[] array = {getString(R.string.modify),getString(R.string.delete)};
+            final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setTitle(R.string.edit_title);
+            builder.setItems(array, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int choose) {
+                    if(choose == 0){
+                        Intent intent = new Intent(getActivity(),AddVehicleActivity.class);
+                        intent.putExtra("position",position);
+                        startActivityForResult(intent,MODIFY_VEHICLE_DATA_REQUEST);
+                    }else if(choose == 1){
+                        deleteVehicleConfirmDialog(position);
+                        dialogInterface.dismiss();
+                    }
+                }
+            }).setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+
+                }
+            }).show();
+        }
+
+        private void deleteVehicleConfirmDialog(final int position){
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setTitle(R.string.delete_confirm)
+                    .setMessage(getString(R.string.delete_vehicle_confirm_message,dbHelper.getVehicleByPosition(position).getVehicleName()))
+                    .setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            dbHelper.deleteVehicle(dbHelper.getVehicleByPosition(position).getVehicleID());
+                            updateVehicleListView();
+                            updateRefuelListView();
+                        }
+                    }).setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                        }
+                    }).show();
+
         }
 
         private void updateVehicleListView() {

@@ -3,6 +3,7 @@ package huang.mike.fuelconsumptionstatistics;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -52,12 +53,17 @@ public class AddRefuelDataActivity extends AppCompatActivity {
     final int priceIndex95 = 1;
     final int priceIndex98 = 2;
     final int priceIndexDiesel = 3;
+    private RefuelData oldRefuelData;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         setContentView(R.layout.add_refuel_data);
         super.onCreate(savedInstanceState);
-        this.setTitle(getString(R.string.add_refuel_data_title));
+        //initiate RefuelDBHelper and get vehicle name list
+        dbHelper = new RefuelDBHelper(this);
+        Spinner spinner = (Spinner) findViewById(R.id.vehicleNameSpinner);
+        ArrayAdapter<CharSequence> adapter = new ArrayAdapter<CharSequence>(this, android.R.layout.simple_spinner_dropdown_item, dbHelper.getVehicleNameList());
+        spinner.setAdapter(adapter);
         radioGroupAutoOrCustom = (RadioGroup) findViewById(R.id.AutoOrCustom);
         radioGroupOilProvider = (RadioGroup) findViewById(R.id.OilProvider);
         radioGroupOilType = (RadioGroup) findViewById(R.id.OilType);
@@ -66,6 +72,14 @@ public class AddRefuelDataActivity extends AppCompatActivity {
         editTextRefuelVolume = (EditText) findViewById(R.id.editRefuelVolume);
         editTextTotalPrice = (EditText) findViewById(R.id.editTotal);
 
+        Intent intent = getIntent();
+        int position = intent.getIntExtra("position",-1);
+        if(position >= 0){
+            this.setTitle(R.string.modify_refuel_data);
+            oldRefuelData = dbHelper.getRefuelDataByPosition(position);
+            initialRefuelData(spinner);
+        }else{
+        this.setTitle(getString(R.string.add_refuel_data_title));
 
         //initiate refuel date
         Calendar calendar = Calendar.getInstance();
@@ -159,12 +173,42 @@ public class AddRefuelDataActivity extends AppCompatActivity {
                     }
                 });
         queue.add(getRequest);
+        }
+    }
 
-        //initiate RefuelDBHelper and get vehicle name list
-        dbHelper = new RefuelDBHelper(this);
-        Spinner spinner = (Spinner) findViewById(R.id.vehicleNameSpinner);
-        ArrayAdapter<CharSequence> adapter = new ArrayAdapter<CharSequence>(this, android.R.layout.simple_spinner_dropdown_item, dbHelper.getVehicleNameList());
-        spinner.setAdapter(adapter);
+    private void initialRefuelData(Spinner spinner){
+        editTextOilPrice.setText(String.valueOf(oldRefuelData.getOilPrice()));
+        editTextRefuelVolume.setText(String.valueOf(oldRefuelData.getRefuelVolume()));
+        editTextTotalPrice.setText(String.valueOf(oldRefuelData.getTotalPrice()));
+        TextView textView = (TextView)findViewById(R.id.textCurrentTime);
+        textView.setText(oldRefuelData.getDateOfRefuel());
+        EditText editText = (EditText)findViewById(R.id.editRefuelMileage);
+        editText.setText(String.valueOf(oldRefuelData.getRefuelMileage()));
+        String vehicleName = dbHelper.getVehicleByID(oldRefuelData.getVehicleID()).getVehicleName();
+        for(int position = 0;position < spinner.getCount();position++){
+            if(spinner.getItemAtPosition(position).equals(vehicleName)){
+                spinner.setSelection(position);
+            }
+        }
+        radioGroupOilProvider.setEnabled(false);
+        radioGroupAutoOrCustom.check(R.id.radioCustom);
+        radioGroupAutoOrCustom.setEnabled(false);
+        switch (oldRefuelData.getOilType()){
+            case "92無鉛汽油":
+                radioGroupOilType.check(R.id.radioButton92);
+                break;
+            case "95無鉛汽油":
+                radioGroupOilType.check(R.id.radioButton95);
+                break;
+            case "98無鉛汽油":
+                radioGroupOilType.check(R.id.radioButton98);
+                break;
+            case "超級柴油":
+                radioGroupOilType.check(R.id.radioButtonDiesel);
+                break;
+            default:
+                break;
+        }
     }
 
     private void calculateRefuelVolume() {
@@ -310,23 +354,51 @@ public class AddRefuelDataActivity extends AppCompatActivity {
             refuelData.setRefuelVolume(Double.parseDouble(editTextRefuelVolume.getText().toString()));
             refuelData.setRefuelMileage(Integer.parseInt(((EditText)findViewById(R.id.editRefuelMileage)).getText().toString()));
             refuelData.setOilType(getOilTypeString());
-            if(refuelData.getRefuelMileage() > vehicle.getCurrentMileage() && refuelData.getRefuelMileage() > vehicle.getOriginMileage()){
-                vehicle.updateVehicleSummary(refuelData.getRefuelMileage(),refuelData.getRefuelVolume());
-                dbHelper.addRefuelData(refuelData);
-                dbHelper.updateVehicle(vehicle);
-                setResult(RESULT_OK);
-                dbHelper.close();
-                finish();
+            if(oldRefuelData == null) {
+                if (refuelData.getRefuelMileage() > vehicle.getCurrentMileage() && refuelData.getRefuelMileage() > vehicle.getOriginMileage()) {
+                    vehicle.updateVehicleSummary(refuelData.getRefuelMileage(), refuelData.getRefuelVolume());
+                    dbHelper.addRefuelData(refuelData);
+                    dbHelper.updateVehicle(vehicle);
+                    setResult(RESULT_OK);
+                    dbHelper.close();
+                    finish();
+                } else {
+                    new AlertDialog.Builder(AddRefuelDataActivity.this)
+                            .setTitle(R.string.error_check_title)
+                            .setMessage(getString(R.string.refuel_mileage_error,vehicle.getCurrentMileage()))
+                            .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                }
+                            })
+                            .show();
+                }
             }else{
-                new AlertDialog.Builder(AddRefuelDataActivity.this)
-                        .setTitle(R.string.error_check_title)
-                        .setMessage(R.string.refuel_mileage_error)
-                        .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                            }
-                        })
-                        .show();
+                if(oldRefuelData.getRefuelMileage() == vehicle.getCurrentMileage()){
+                    vehicle.setCurrentMileage(refuelData.getRefuelMileage());
+                }
+                if(oldRefuelData.getRefuelMileage() == vehicle.getLastTimeRefuelMileage()){
+                    vehicle.setLastTimeRefuelMileage(refuelData.getRefuelMileage());
+                }
+                if(refuelData.getRefuelMileage() >= vehicle.getOriginMileage()){
+                    double totalRefuelVolume = vehicle.getTotalRefuelVolume() - oldRefuelData.getRefuelVolume() + refuelData.getRefuelVolume();
+                    vehicle.setTotalRefuelVolume(totalRefuelVolume);
+                    dbHelper.updateVehicle(vehicle);
+                    dbHelper.updateRefuelData(refuelData);
+                    dbHelper.close();
+                    setResult(RESULT_OK);
+                    finish();
+                }else{
+                    new AlertDialog.Builder(AddRefuelDataActivity.this)
+                            .setTitle(R.string.error_check_title)
+                            .setMessage(getString(R.string.refuel_mileage_edit_error,vehicle.getOriginMileage()))
+                            .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                }
+                            })
+                            .show();
+                }
             }
         }
     }
