@@ -328,7 +328,7 @@ class RefuelDBHelper extends SQLiteOpenHelper {
 
     public HashMap<String,Double> getTotalVolumeStatics(){
         SQLiteDatabase sqLiteDatabase = this.getReadableDatabase();
-        String queryString = "SELECT " + KEY_REFUEL_VOLUME + ", "
+        String queryString = "SELECT SUM(" + KEY_REFUEL_VOLUME + ") AS TOTAL, "
                 + KEY_OIL_TYPE + " FROM " + TABLE_REFUEL_DATA
                 + " GROUP BY " + KEY_OIL_TYPE;
         Cursor cursor = sqLiteDatabase.rawQuery(queryString,null);
@@ -336,7 +336,7 @@ class RefuelDBHelper extends SQLiteOpenHelper {
         HashMap<String,Double> hashMap = new HashMap<>();
         if(cursor.moveToFirst()){
             do {
-                hashMap.put(cursor.getString(cursor.getColumnIndex(KEY_OIL_TYPE)),cursor.getDouble(cursor.getColumnIndex(KEY_REFUEL_VOLUME)));
+                hashMap.put(cursor.getString(cursor.getColumnIndex(KEY_OIL_TYPE)),cursor.getDouble(cursor.getColumnIndex("TOTAL")));
             }while (cursor.moveToNext());
         }
         cursor.close();
